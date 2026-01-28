@@ -19,6 +19,10 @@ chat_id = 0
 session_mode = "chat"
 show_resume_line = false
 
+[transports.telegram.files]
+enabled = true
+auto_put = true
+
 [claude]
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch"]
 use_api_billing = true
