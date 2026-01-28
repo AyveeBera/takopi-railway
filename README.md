@@ -4,7 +4,7 @@ Railway deployment for [takopi](https://github.com/banteg/takopi) - Telegram bri
 
 ## One-Click Deploy
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/takopi?referralCode=takopi)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/F5m5Aw?utm_medium=integration&utm_source=template&utm_campaign=generic)
 
 > **Note:** After deploying, add a volume mounted at `/data` in Railway's dashboard.
 
