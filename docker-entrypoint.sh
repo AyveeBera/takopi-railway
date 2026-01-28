@@ -21,6 +21,7 @@ watch_config = true
 
 [transports.telegram]
 bot_token = "$BOT_TOKEN"
+chat_id = 0
 session_mode = "chat"
 show_resume_line = false
 EOF
