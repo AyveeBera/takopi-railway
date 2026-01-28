@@ -34,6 +34,13 @@ echo "--- Generated takopi config ---"
 cat "$CONFIG_FILE"
 echo "--- End config ---"
 
+# --- GitHub CLI auth ---
+if [ -n "$GITHUB_TOKEN" ]; then
+  GITHUB_TOKEN="${GITHUB_TOKEN//\"/}"
+  echo "$GITHUB_TOKEN" | gh auth login --with-token
+  echo "✓ GitHub CLI authenticated"
+fi
+
 # --- Knowledge vault bootstrap ---
 VAULT="${KNOWLEDGE_PATH:-/data/knowledge}"
 

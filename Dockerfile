@@ -2,7 +2,7 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm
 
 # System deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nodejs npm git curl cron && rm -rf /var/lib/apt/lists/*
+    nodejs npm git curl cron gh && rm -rf /var/lib/apt/lists/*
 
 # Install engine CLIs
 RUN npm install -g @anthropic-ai/claude-code @openai/codex
