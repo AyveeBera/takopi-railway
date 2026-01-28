@@ -11,7 +11,7 @@ RUN npm install -g @anthropic-ai/claude-code @openai/codex
 RUN uv tool install git+https://github.com/asianviking/takopi.git@fix/chat-id-validation
 
 # Persistent data mount point
-WORKDIR /data/github
+WORKDIR /data
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
