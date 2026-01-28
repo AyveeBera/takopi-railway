@@ -27,6 +27,10 @@ chat_id = $CHAT_ID
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch"]
 EOF
 
+echo "--- Generated takopi config ---"
+cat "$CONFIG_FILE"
+echo "--- End config ---"
+
 # --- Knowledge vault bootstrap ---
 VAULT="${KNOWLEDGE_PATH:-/data/knowledge}"
 
