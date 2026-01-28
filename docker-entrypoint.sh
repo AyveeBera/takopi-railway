@@ -23,6 +23,7 @@ watch_config = true
 bot_token = "$BOT_TOKEN"
 chat_id = $CHAT_ID
 session_mode = "chat"
+show_resume_line = false
 
 [claude]
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch"]
