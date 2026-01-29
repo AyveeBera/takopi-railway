@@ -34,6 +34,8 @@ if [ -n "$GITHUB_TOKEN" ]; then
   echo "Attempting GitHub CLI auth (token length: ${#GITHUB_TOKEN})..."
   if gh_output=$(echo "$GITHUB_TOKEN" | gh auth login --with-token 2>&1); then
     echo "✓ GitHub CLI authenticated"
+    gh auth setup-git
+    echo "✓ Git configured to use GitHub CLI authentication"
   else
     echo "⚠ GitHub CLI auth failed - continuing without GitHub integration"
     echo "  Error: $gh_output"
