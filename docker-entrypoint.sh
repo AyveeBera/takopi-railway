@@ -23,6 +23,10 @@ show_resume_line = false
 enabled = true
 auto_put = true
 
+[transports.telegram.topics]
+enabled = false
+scope = "auto"
+
 [claude]
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch"]
 use_api_billing = true
