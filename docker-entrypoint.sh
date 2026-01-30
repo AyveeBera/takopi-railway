@@ -27,6 +27,9 @@ auto_put = true
 enabled = false
 scope = "auto"
 
+[codex]
+extra_args = ["-c", "notify=[]", "--dangerously-bypass-approvals-and-sandbox"]
+
 [claude]
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch"]
 use_api_billing = true
