@@ -47,6 +47,19 @@ if [ -n "$GITHUB_TOKEN" ]; then
   fi
 fi
 
+# --- Codex CLI auth (optional) ---
+if [ -n "$OPENAI_API_KEY" ]; then
+  OPENAI_API_KEY="${OPENAI_API_KEY//\"/}"
+  echo "Attempting Codex CLI auth (token length: ${#OPENAI_API_KEY})..."
+  if codex_output=$(echo "$OPENAI_API_KEY" | codex login --with-api-key 2>&1); then
+    echo "✓ Codex CLI authenticated"
+  else
+    echo "⚠ Codex CLI auth failed - continuing without Codex"
+    echo "  Error: $codex_output"
+    echo "  Hint: Ensure OPENAI_API_KEY is valid. Generate at: https://platform.openai.com/api-keys"
+  fi
+fi
+
 # --- Knowledge vault bootstrap ---
 VAULT="${KNOWLEDGE_PATH:-/data/knowledge}"
 
