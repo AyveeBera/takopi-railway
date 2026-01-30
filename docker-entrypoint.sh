@@ -31,6 +31,7 @@ scope = "auto"
 extra_args = ["-c", "notify=[]", "--dangerously-bypass-approvals-and-sandbox"]
 
 [claude]
+model = "opus"
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch"]
 use_api_billing = true
 EOF
