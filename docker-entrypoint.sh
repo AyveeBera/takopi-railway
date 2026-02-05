@@ -7,61 +7,33 @@ CONFIG_FILE="$CONFIG_DIR/takopi.toml"
 
 mkdir -p "$CONFIG_DIR"
 
-# Seed config file with all documented defaults
-# Env vars override via pydantic-settings at runtime (TAKOPI__KEY format)
+# Seed config file - env vars override via pydantic-settings at runtime
 cat > "$CONFIG_FILE" << 'EOF'
-# Top-level settings
-watch_config = true
 default_engine = "claude"
 transport = "telegram"
-# default_project = null  # uncomment to set a default project
+watch_config = true
 
 [transports.telegram]
 bot_token = "placeholder"
 chat_id = 0
-allowed_user_ids = []
-message_overflow = "trim"
-forward_coalesce_s = 1.0
-voice_transcription = false
-voice_max_bytes = 10485760
-voice_transcription_model = "gpt-4o-mini-transcribe"
-# voice_transcription_base_url = null
-# voice_transcription_api_key = null
 session_mode = "chat"
 show_resume_line = false
+
+[transports.telegram.files]
+enabled = true
+auto_put = true
 
 [transports.telegram.topics]
 enabled = false
 scope = "auto"
 
-[transports.telegram.files]
-enabled = true
-auto_put = true
-auto_put_mode = "upload"
-uploads_dir = "incoming"
-allowed_user_ids = []
-deny_globs = [".git/**", ".env", ".envrc", "**/*.pem", "**/.ssh/**"]
-
-[plugins]
-enabled = []
-
 [codex]
 extra_args = ["-c", "notify=[]", "--dangerously-bypass-approvals-and-sandbox"]
-# profile = null
 
 [claude]
 model = "opus"
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch", "WebFetch"]
-dangerously_skip_permissions = false
 use_api_billing = true
-
-[pi]
-# model = null
-# provider = null
-extra_args = []
-
-[opencode]
-# model = null
 EOF
 
 # --- GitHub CLI auth ---
