@@ -7,27 +7,43 @@ CONFIG_FILE="$CONFIG_DIR/takopi.toml"
 
 mkdir -p "$CONFIG_DIR"
 
-# Seed config file - env vars override via pydantic-settings at runtime
+# Seed config file with all documented defaults
+# Env vars override via pydantic-settings at runtime (TAKOPI__KEY format)
 cat > "$CONFIG_FILE" << 'EOF'
+# Top-level settings
+watch_config = true
 default_engine = "claude"
 transport = "telegram"
-watch_config = true
 
 [transports.telegram]
 bot_token = "placeholder"
 chat_id = 0
+allowed_user_ids = []
+message_overflow = "split"
+forward_coalesce_s = 1.0
+voice_transcription = false
+voice_max_bytes = 10485760
+voice_transcription_model = "gpt-4o-mini-transcribe"
 session_mode = "chat"
 show_resume_line = false
-
-[transports.telegram.files]
-enabled = true
-auto_put = true
 
 [transports.telegram.topics]
 enabled = false
 scope = "auto"
 
+[transports.telegram.files]
+enabled = true
+auto_put = true
+auto_put_mode = "upload"
+uploads_dir = "incoming"
+allowed_user_ids = []
+deny_globs = [".git/**", ".env", ".envrc", "**/*.pem", "**/.ssh/**"]
+
+[plugins]
+enabled = []
+
 [codex]
+model = "gpt-5.2"
 extra_args = ["-c", "notify=[]", "--dangerously-bypass-approvals-and-sandbox"]
 
 [claude]
