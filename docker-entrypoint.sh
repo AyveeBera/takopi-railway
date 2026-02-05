@@ -14,19 +14,16 @@ cat > "$CONFIG_FILE" << 'EOF'
 watch_config = true
 default_engine = "claude"
 transport = "telegram"
-# default_project = null  # uncomment to set a default project
 
 [transports.telegram]
 bot_token = "placeholder"
 chat_id = 0
 allowed_user_ids = []
-message_overflow = "trim"
+message_overflow = "split"
 forward_coalesce_s = 1.0
 voice_transcription = false
 voice_max_bytes = 10485760
 voice_transcription_model = "gpt-4o-mini-transcribe"
-# voice_transcription_base_url = null
-# voice_transcription_api_key = null
 session_mode = "chat"
 show_resume_line = false
 
@@ -46,22 +43,13 @@ deny_globs = [".git/**", ".env", ".envrc", "**/*.pem", "**/.ssh/**"]
 enabled = []
 
 [codex]
+model = "gpt-5.2"
 extra_args = ["-c", "notify=[]", "--dangerously-bypass-approvals-and-sandbox"]
-# profile = null
 
 [claude]
 model = "opus"
 allowed_tools = ["Bash", "Read", "Edit", "Write", "WebSearch", "WebFetch"]
-dangerously_skip_permissions = false
 use_api_billing = true
-
-[pi]
-# model = null
-# provider = null
-extra_args = []
-
-[opencode]
-# model = null
 EOF
 
 # --- GitHub CLI auth ---
