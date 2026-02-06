@@ -318,4 +318,14 @@ if [ -n "$TAKOPI_REPOS" ]; then
   done
 fi
 
+# --- Run persistent startup hook (if it exists) ---
+# Restores user-customized CLAUDE.md, crontab, and any other ephemeral state
+# from the /data volume. Users create this file via the partner bootstrap prompt.
+STARTUP_HOOK="$VAULT/04-claude-code/startup.sh"
+if [ -f "$STARTUP_HOOK" ]; then
+  echo "Running startup hook..."
+  bash "$STARTUP_HOOK"
+  echo "✓ Startup hook complete"
+fi
+
 exec "$@"
