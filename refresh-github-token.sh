@@ -21,6 +21,20 @@ if [[ -n "$private_key_file" && -z "$private_key" ]]; then
   private_key="$(cat "$private_key_file")"
 fi
 
+# Railway and similar UIs sometimes store the value with surrounding quotes.
+# Strip a single outer layer so openssl can parse the PEM.
+if [[ "$private_key" == \"*\" ]]; then
+  private_key="${private_key#\"}"
+  private_key="${private_key%\"}"
+fi
+if [[ "$private_key" == \'*\' ]]; then
+  private_key="${private_key#\'}"
+  private_key="${private_key%\'}"
+fi
+
+# Normalize CRLF -> LF.
+private_key="${private_key//$'\r'/}"
+
 if [[ -z "$app_id" || -z "$installation_id" || -z "$private_key" ]]; then
   exit 0
 fi
