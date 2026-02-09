@@ -20,11 +20,37 @@ ANTHROPIC_API_KEY=your_anthropic_key
 
 # Optional
 OPENAI_API_KEY=your_openai_key
+
+# GitHub (optional)
+# - PAT (works as-is)
 GITHUB_TOKEN=your_github_token
+# - OR GitHub App (auto-refreshed installation token)
+GITHUB_APP_ID=12345
+# Railway-friendly options for the private key (choose one):
+# - Base64 (recommended on Railway)
+GITHUB_APP_PRIVATE_KEY_B64=LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JS...
+# - PEM text (use \\n for newlines; Railway may wrap in quotes and that's OK)
+GITHUB_APP_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----"
+# - File path (if you can provide a file in the container)
+GITHUB_APP_PRIVATE_KEY_FILE=/path/to/private-key.pem
+GITHUB_APP_INSTALLATION_ID=987654
+
+# Optional GitHub App tuning
+# - Wait for token before cloning TAKOPI_REPOS
+GITHUB_TOKEN_WAIT_SECONDS=180
+# - Refresh a bit before expiry (seconds)
+GITHUB_TOKEN_REFRESH_SAFETY_SECONDS=300
 
 # Optional: repos to clone on startup (comma-separated)
 TAKOPI_REPOS=owner/repo1,owner/repo2
 ```
+
+### GitHub App Token Notes
+
+When using `GITHUB_APP_*` variables, an installation token is fetched on boot and periodically refreshed inside the container. The current token is written to `/run/github-token`.
+For scripts/tools, you can read that file directly or run `github-token` to print the current token (falls back to `GITHUB_TOKEN` in PAT mode).
+
+For private repo cloning / API access, make sure your GitHub App has at least **Repository permissions → Contents: Read** (and is installed on the target repos).
 
 ### Creating Your Telegram Bot
 
