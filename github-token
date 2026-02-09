@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+token_file="${GITHUB_TOKEN_FILE:-/run/github-token}"
+
+if [[ -f "$token_file" ]]; then
+  cat "$token_file"
+  exit 0
+fi
+
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+  printf '%s' "$GITHUB_TOKEN"
+  exit 0
+fi
+
+exit 1
+
