@@ -53,7 +53,26 @@ use_api_billing = true
 EOF
 
 # --- GitHub CLI auth ---
-if [ -n "$GITHUB_TOKEN" ]; then
+if [[ -n "${GITHUB_APP_ID:-}" && -n "${GITHUB_APP_PRIVATE_KEY:-}" && -n "${GITHUB_APP_INSTALLATION_ID:-}" ]]; then
+  echo "GitHub App credentials detected; enabling auto-refresh..."
+
+  # Always start the refresh loop so we recover even if the first refresh fails.
+  /usr/local/bin/github-token-daemon.sh >/dev/null 2>&1 &
+  echo "✓ GitHub token refresh loop started"
+
+  token_file="${GITHUB_TOKEN_FILE:-/run/github-token}"
+
+  if /usr/local/bin/refresh-github-token.sh; then
+    echo "✓ GitHub App installation token acquired"
+  else
+    echo "⚠ GitHub App token refresh failed; will keep retrying in background"
+    echo "  Hint: Check GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_APP_INSTALLATION_ID"
+  fi
+
+  if [[ -f "$token_file" ]]; then
+    export GITHUB_TOKEN="$(cat "$token_file")"
+  fi
+elif [ -n "${GITHUB_TOKEN:-}" ]; then
   GITHUB_TOKEN="${GITHUB_TOKEN//\"/}"
   echo "Attempting GitHub CLI auth (token length: ${#GITHUB_TOKEN})..."
   if gh_output=$(echo "$GITHUB_TOKEN" | gh auth login --with-token 2>&1); then
@@ -306,6 +325,27 @@ fi
 cron
 echo "✓ Cron daemon started"
 
+# --- Wait for GitHub App token if we need it for repo cloning ---
+if [[ -n "$TAKOPI_REPOS" && -n "${GITHUB_APP_ID:-}" && -n "${GITHUB_APP_PRIVATE_KEY:-}" && -n "${GITHUB_APP_INSTALLATION_ID:-}" ]]; then
+  token_file="${GITHUB_TOKEN_FILE:-/run/github-token}"
+  wait_s="${GITHUB_TOKEN_WAIT_SECONDS:-180}"
+
+  if [[ ! -f "$token_file" ]]; then
+    echo "Waiting up to ${wait_s}s for GitHub App token (for TAKOPI_REPOS cloning)..."
+    end=$((SECONDS + wait_s))
+    while [[ $SECONDS -lt $end ]]; do
+      [[ -f "$token_file" ]] && break
+      sleep 5
+    done
+  fi
+
+  if [[ -f "$token_file" ]]; then
+    export GITHUB_TOKEN="$(cat "$token_file")"
+  else
+    echo "⚠ GitHub token still not available; private repo clones may fail"
+  fi
+fi
+
 # --- Clone repos if requested ---
 if [ -n "$TAKOPI_REPOS" ]; then
   IFS=',' read -ra REPOS <<< "$TAKOPI_REPOS"
@@ -313,7 +353,11 @@ if [ -n "$TAKOPI_REPOS" ]; then
     name=$(basename "$repo")
     if [ ! -d "/data/github/$name" ]; then
       echo "Cloning $repo..."
-      git clone "https://github.com/$repo.git" "/data/github/$name"
+      clone_host="${GITHUB_CLONE_HOST:-${GITHUB_HOST:-github.com}}"
+      clone_host="${clone_host#https://}"
+      clone_host="${clone_host#http://}"
+      clone_host="${clone_host%/}"
+      git clone "https://${clone_host}/${repo}.git" "/data/github/$name"
     fi
   done
 fi
