@@ -61,7 +61,6 @@ if [[ -n "${GITHUB_APP_ID:-}" && -n "${GITHUB_APP_PRIVATE_KEY:-}" && -n "${GITHU
   echo "✓ GitHub token refresh loop started"
 
   token_file="${GITHUB_TOKEN_FILE:-/run/github-token}"
-  wait_s="${GITHUB_TOKEN_WAIT_SECONDS:-180}"
 
   if /usr/local/bin/refresh-github-token.sh; then
     echo "✓ GitHub App installation token acquired"
@@ -354,7 +353,11 @@ if [ -n "$TAKOPI_REPOS" ]; then
     name=$(basename "$repo")
     if [ ! -d "/data/github/$name" ]; then
       echo "Cloning $repo..."
-      git clone "https://github.com/$repo.git" "/data/github/$name"
+      clone_host="${GITHUB_CLONE_HOST:-${GITHUB_HOST:-github.com}}"
+      clone_host="${clone_host#https://}"
+      clone_host="${clone_host#http://}"
+      clone_host="${clone_host%/}"
+      git clone "https://${clone_host}/${repo}.git" "/data/github/$name"
     fi
   done
 fi

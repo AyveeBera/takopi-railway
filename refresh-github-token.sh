@@ -47,6 +47,7 @@ sig_b64="$(printf '%s' "$unsigned" | openssl dgst -sha256 -binary -sign "$key_fi
 jwt="${unsigned}.${sig_b64}"
 
 body_file="$work_dir/resp.json"
+set +e
 http_code="$(
   curl -sS -o "$body_file" -w "%{http_code}" -X POST \
     -H "Accept: application/vnd.github+json" \
@@ -54,6 +55,13 @@ http_code="$(
     -H "X-GitHub-Api-Version: 2022-11-28" \
     "${api_url}/app/installations/${installation_id}/access_tokens"
 )"
+curl_rc="$?"
+set -e
+
+if (( curl_rc != 0 )); then
+  echo "GitHub App token request failed: curl exited with ${curl_rc}" >&2
+  exit 1
+fi
 
 if [[ "$http_code" != "201" && "$http_code" != "200" ]]; then
   err_msg="$(
