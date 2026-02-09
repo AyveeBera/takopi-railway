@@ -10,6 +10,7 @@ host="${GITHUB_HOST:-github.com}"
 app_id="${GITHUB_APP_ID:-}"
 installation_id="${GITHUB_APP_INSTALLATION_ID:-}"
 private_key="${GITHUB_APP_PRIVATE_KEY:-}"
+private_key_b64="${GITHUB_APP_PRIVATE_KEY_B64:-}"
 private_key_file="${GITHUB_APP_PRIVATE_KEY_FILE:-}"
 
 api_url="${api_url%/}"
@@ -21,15 +22,38 @@ if [[ -n "$private_key_file" && -z "$private_key" ]]; then
   private_key="$(cat "$private_key_file")"
 fi
 
-# Railway and similar UIs sometimes store the value with surrounding quotes.
-# Strip a single outer layer so openssl can parse the PEM.
-if [[ "$private_key" == \"*\" ]]; then
-  private_key="${private_key#\"}"
-  private_key="${private_key%\"}"
-fi
-if [[ "$private_key" == \'*\' ]]; then
-  private_key="${private_key#\'}"
-  private_key="${private_key%\'}"
+strip_outer_quotes() {
+  local value="$1"
+  if [[ "$value" == \"*\" && "$value" == *\" ]]; then
+    value="${value#\"}"
+    value="${value%\"}"
+  fi
+  if [[ "$value" == \'*\' && "$value" == *\' ]]; then
+    value="${value#\'}"
+    value="${value%\'}"
+  fi
+  printf '%s' "$value"
+}
+
+# Railway and similar UIs sometimes store values with surrounding quotes.
+private_key="$(strip_outer_quotes "$private_key")"
+private_key_b64="$(strip_outer_quotes "$private_key_b64")"
+
+if [[ -z "$private_key_file" && -n "$private_key_b64" ]]; then
+  set +e
+  decoded="$(printf '%s' "$private_key_b64" | tr -d ' \n\t\r' | base64 -d 2>/dev/null)"
+  rc="$?"
+  if (( rc != 0 )); then
+    decoded="$(printf '%s' "$private_key_b64" | tr -d ' \n\t\r' | base64 -D 2>/dev/null)"
+    rc="$?"
+  fi
+  set -e
+
+  if (( rc != 0 )); then
+    echo "Could not decode GITHUB_APP_PRIVATE_KEY_B64 (base64 decode failed)" >&2
+    exit 1
+  fi
+  private_key="$decoded"
 fi
 
 # Normalize CRLF -> LF.
@@ -46,7 +70,18 @@ cleanup() { rm -rf "$work_dir"; }
 trap cleanup EXIT
 
 key_file="$work_dir/github-app-private-key.pem"
-printf '%s' "$private_key" | sed 's/\\n/\n/g' > "$key_file"
+
+# Support both \n and \\n encodings (some UIs double-escape backslashes).
+private_key="${private_key//\\\\n/$'\n'}"
+private_key="${private_key//\\n/$'\n'}"
+
+printf '%s' "$private_key" > "$key_file"
+
+if ! openssl pkey -in "$key_file" -noout >/dev/null 2>&1; then
+  first_line="$(head -n 1 "$key_file" 2>/dev/null || true)"
+  echo "Could not read GitHub App private key (first line: ${first_line})" >&2
+  exit 1
+fi
 
 b64url() {
   openssl base64 -A | tr '+/' '-_' | tr -d '='

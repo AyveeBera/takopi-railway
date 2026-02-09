@@ -26,9 +26,13 @@ OPENAI_API_KEY=your_openai_key
 GITHUB_TOKEN=your_github_token
 # - OR GitHub App (auto-refreshed installation token)
 GITHUB_APP_ID=12345
+# Railway-friendly options for the private key (choose one):
+# - Base64 (recommended on Railway)
+GITHUB_APP_PRIVATE_KEY_B64=LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JS...
+# - PEM text (use \\n for newlines; Railway may wrap in quotes and that's OK)
 GITHUB_APP_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----"
-# Alternative to multiline env var:
-# GITHUB_APP_PRIVATE_KEY_FILE=/path/to/private-key.pem
+# - File path (if you can provide a file in the container)
+GITHUB_APP_PRIVATE_KEY_FILE=/path/to/private-key.pem
 GITHUB_APP_INSTALLATION_ID=987654
 
 # Optional GitHub App tuning
