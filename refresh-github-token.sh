@@ -46,7 +46,18 @@ cleanup() { rm -rf "$work_dir"; }
 trap cleanup EXIT
 
 key_file="$work_dir/github-app-private-key.pem"
-printf '%s' "$private_key" | sed 's/\\n/\n/g' > "$key_file"
+
+# Support both \n and \\n encodings (some UIs double-escape backslashes).
+private_key="${private_key//\\\\n/$'\n'}"
+private_key="${private_key//\\n/$'\n'}"
+
+printf '%s' "$private_key" > "$key_file"
+
+if ! openssl pkey -in "$key_file" -noout >/dev/null 2>&1; then
+  first_line="$(head -n 1 "$key_file" 2>/dev/null || true)"
+  echo "Could not read GitHub App private key (first line: ${first_line})" >&2
+  exit 1
+fi
 
 b64url() {
   openssl base64 -A | tr '+/' '-_' | tr -d '='
