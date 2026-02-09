@@ -62,6 +62,7 @@ if [[ -n "${GITHUB_APP_ID:-}" && -n "${GITHUB_APP_PRIVATE_KEY:-}" && -n "${GITHU
 
   token_file="${GITHUB_TOKEN_FILE:-/run/github-token}"
 
+  echo "Fetching initial GitHub App installation token..."
   if /usr/local/bin/refresh-github-token.sh; then
     echo "✓ GitHub App installation token acquired"
   else
