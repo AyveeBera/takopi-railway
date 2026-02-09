@@ -14,6 +14,9 @@ private_key_file="${GITHUB_APP_PRIVATE_KEY_FILE:-}"
 
 api_url="${api_url%/}"
 
+curl_connect_timeout_s="${GITHUB_CURL_CONNECT_TIMEOUT_SECONDS:-5}"
+curl_max_time_s="${GITHUB_CURL_MAX_TIME_SECONDS:-20}"
+
 if [[ -n "$private_key_file" && -z "$private_key" ]]; then
   private_key="$(cat "$private_key_file")"
 fi
@@ -50,6 +53,8 @@ body_file="$work_dir/resp.json"
 set +e
 http_code="$(
   curl -sS -o "$body_file" -w "%{http_code}" -X POST \
+    --connect-timeout "$curl_connect_timeout_s" \
+    --max-time "$curl_max_time_s" \
     -H "Accept: application/vnd.github+json" \
     -H "Authorization: Bearer ${jwt}" \
     -H "X-GitHub-Api-Version: 2022-11-28" \
@@ -59,7 +64,7 @@ curl_rc="$?"
 set -e
 
 if (( curl_rc != 0 )); then
-  echo "GitHub App token request failed: curl exited with ${curl_rc}" >&2
+  echo "GitHub App token request failed: curl exited with ${curl_rc} (connect_timeout=${curl_connect_timeout_s}s max_time=${curl_max_time_s}s)" >&2
   exit 1
 fi
 
