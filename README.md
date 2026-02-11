@@ -43,6 +43,14 @@ GITHUB_TOKEN_REFRESH_SAFETY_SECONDS=300
 
 # Optional: repos to clone on startup (comma-separated)
 TAKOPI_REPOS=owner/repo1,owner/repo2
+
+# ngrok (optional)
+# - Authenticates the ngrok CLI on boot and persists config under /data
+NGROK_AUTHTOKEN=your_ngrok_authtoken
+# Optional: provide token via file path (e.g. Railway secret file)
+NGROK_AUTHTOKEN_FILE=/path/to/ngrok_authtoken
+# Optional: override config location (default: /data/.config/ngrok/ngrok.yml)
+NGROK_CONFIG=/data/.config/ngrok/ngrok.yml
 ```
 
 ### GitHub App Token Notes
