@@ -100,6 +100,32 @@ if [ -n "$OPENAI_API_KEY" ]; then
   fi
 fi
 
+# --- ngrok CLI auth (optional) ---
+export NGROK_CONFIG="${NGROK_CONFIG:-/data/.config/ngrok/ngrok.yml}"
+if [[ -n "${NGROK_AUTHTOKEN:-}" || -n "${NGROK_AUTHTOKEN_FILE:-}" ]]; then
+  mkdir -p "$(dirname "$NGROK_CONFIG")"
+
+  ngrok_token="${NGROK_AUTHTOKEN:-}"
+  if [[ -z "$ngrok_token" && -f "${NGROK_AUTHTOKEN_FILE:-}" ]]; then
+    ngrok_token="$(cat "$NGROK_AUTHTOKEN_FILE")"
+  fi
+
+  ngrok_token="${ngrok_token//\"/}"
+
+  if [[ -n "$ngrok_token" ]]; then
+    echo "Attempting ngrok auth (token length: ${#ngrok_token})..."
+    if ngrok_output=$(ngrok config add-authtoken "$ngrok_token" 2>&1); then
+      echo "✓ ngrok authenticated"
+    else
+      echo "⚠ ngrok auth failed - continuing without ngrok"
+      echo "  Error: $ngrok_output"
+      echo "  Hint: Ensure NGROK_AUTHTOKEN is valid."
+    fi
+  else
+    echo "⚠ NGROK_AUTHTOKEN_FILE provided but no token found - skipping ngrok auth"
+  fi
+fi
+
 # --- Knowledge vault bootstrap ---
 VAULT="${KNOWLEDGE_PATH:-/data/knowledge}"
 
